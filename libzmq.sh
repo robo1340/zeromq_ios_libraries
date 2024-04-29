@@ -9,10 +9,10 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 LIBNAME="libzmq.a"
 ROOTDIR=`pwd`
 
-LIBSODIUM_DIST="$DIR/libsodium_dist/"
+LIBSODIUM_DIST="$DIR/libsodium_dist"
 
-ARCHS=${ARCHS:-"armv7 armv7s arm64 i386 x86_64"}
-#ARCHS=${ARCHS:-"arm64 i386 x86_64"}
+#ARCHS=${ARCHS:-"armv7 armv7s arm64 i386 x86_64"}
+ARCHS=${ARCHS:-"x86_64"}
 DEVELOPER=$(xcode-select -print-path)
 LIPO=$(xcrun -sdk iphoneos -find lipo)
 #LIPO=lipo
@@ -44,7 +44,8 @@ SIM_SDK=$(xcodebuild -showsdks \
 
 
 IOS_VERSION_MIN=8.0
-OTHER_LDFLAGS=""
+#OTHER_LDFLAGS=""
+OTHER_LDFLAGS="-L${LIBSODIUM_DIST}/lib -lsodium"
 OTHER_CFLAGS="-Os -Qunused-arguments"
 # Enable Bitcode
 OTHER_CPPFLAGS="-Os -I${LIBSODIUM_DIST}/include -fembed-bitcode"
@@ -144,13 +145,15 @@ do
     set +e
     cd ${LIBDIR} && make distclean
     set -e
+    ${LIBDIR}/autogen.sh 
     ${LIBDIR}/configure \
 	--prefix=${BUILDARCHDIR} \
 	--disable-shared \
 	--enable-static \
 	--host=${HOST}\
-	--with-libsodium=${LIBSODIUM_DIST}
+	--with-libsodium=yes
 
+    #--with-libsodium=${LIBSODIUM_DIST}
     echo "Building ${LIBNAME} for ${ARCH}..."
     cd ${LIBDIR}
 

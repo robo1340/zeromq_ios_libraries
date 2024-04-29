@@ -9,10 +9,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 LIBNAME="libczmq.a"
 ROOTDIR=`pwd`
 
-LIBZMQ_DIST="$DIR/libzmq_dist/"
+LIBZMQ_DIST="$DIR/libzmq_dist"
+LIBSODIUM_DIST="$DIR/libsodium_dist"
 
-ARCHS=${ARCHS:-"armv7 armv7s arm64 i386 x86_64"}
-#ARCHS=${ARCHS:-"arm64 i386 x86_64"}
+#ARCHS=${ARCHS:-"armv7 armv7s arm64 i386 x86_64"}
+ARCHS=${ARCHS:-"x86_64"}
 DEVELOPER=$(xcode-select -print-path)
 LIPO=$(xcrun -sdk iphoneos -find lipo)
 #LIPO=lipo
@@ -42,7 +43,7 @@ SIM_SDK=$(xcodebuild -showsdks \
 )
 
 IOS_VERSION_MIN=8.0
-OTHER_LDFLAGS="-L${LIBZMQ_DIST}/lib -lc++ -lzmq"
+OTHER_LDFLAGS="-L${LIBZMQ_DIST}/lib -L${LIBSODIUM_DIST}/lib -lc++ -lzmq -lsodium"
 OTHER_CFLAGS="-Os -Qunused-arguments"
 # Enable Bitcode
 OTHER_CPPFLAGS="-Os -I${LIBZMQ_DIST}/include -fembed-bitcode"
@@ -142,10 +143,13 @@ do
     set +e
     cd ${LIBDIR} && make distclean
     set -e
+    ${LIBDIR}/autogen.sh 
     ${LIBDIR}/configure \
 	--prefix=${BUILDARCHDIR} \
 	--disable-shared \
 	--enable-static \
+	--with-libcurl=no \
+	--with-liblz4=no \
 	--host=${HOST} \
     --verbose \
     --with-libzmq=${LIBZMQ_DIST}

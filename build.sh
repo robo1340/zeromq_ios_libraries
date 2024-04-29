@@ -5,18 +5,18 @@ set -o xtrace
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # from https://download.libsodium.org/libsodium/releases/
-SODIUM_VERSION=libsodium-1.0.18.tar.gz
+SODIUM_VERSION=libsodium-1.0.19.tar.gz
 SODIUM_DOWNLOAD=sodium.tar.gz
 SODIUM_FILES=libsodium
 
 # from https://github.com/zeromq/libzmq/releases/tag/
-ZMQ_VERSION=v4.3.3/zeromq-4.3.3.tar.gz
+ZMQ_VERSION=v4.3.5/zeromq-4.3.5.tar.gz
 ZMQ_DOWNLOAD=zmq.tar.gz
 ZMQ_FILES=zmq
 
 # from https://github.com/zeromq/czmq/releases/tag
-CZMQ_VERSION=v4.2.0/czmq-4.2.0.tar.gz
-CZMQ_DOWNLOAD=czmq.tar.gz
+#CZMQ_VERSION=v4.2.1/czmq-4.2.1.tar.gz
+#CZMQ_DOWNLOAD=czmq.tar.gz
 CZMQ_FILES=czmq
 
 rm -rf $DIR/build
@@ -30,19 +30,27 @@ echo "downloading zeromq..."
 curl -L -o $ZMQ_DOWNLOAD https://github.com/zeromq/libzmq/releases/download/$ZMQ_VERSION
 
 echo "downloading czmq..."
-curl -L -o $CZMQ_DOWNLOAD https://github.com/zeromq/czmq/releases/download/$CZMQ_VERSION
+#curl -L -o $CZMQ_DOWNLOAD https://github.com/zeromq/czmq/releases/download/$CZMQ_VERSION
+git clone https://github.com/zeromq/czmq.git 
+#reset the git repo to desired commit
+#cd $CZMQ_FILES
+#git reset --hard e6f0a0f
+#cd --
 
 echo "extracting sodium..."
 mkdir $SODIUM_FILES
-tar --strip 1 -xvf $SODIUM_DOWNLOAD -C $SODIUM_FILES
+tar --strip 1 -xf $SODIUM_DOWNLOAD -C $SODIUM_FILES
 
 echo "extracting zmq..."
 mkdir $ZMQ_FILES
-tar --strip 1 -xvf $ZMQ_DOWNLOAD -C $ZMQ_FILES
+tar --strip 1 -xf $ZMQ_DOWNLOAD -C $ZMQ_FILES
+
+echo "patching configure.ac for zmq"
+cp -f ../configure.ac.zmq ./$ZMQ_FILES/configure.ac
 
 echo "extracting czmq..."
 mkdir $CZMQ_FILES
-tar --strip 1 -xvf $CZMQ_DOWNLOAD -C $CZMQ_FILES
+tar --strip 1 -xf $CZMQ_DOWNLOAD -C $CZMQ_FILES
 
 echo "building libsodium..."
 cp $DIR/libsodium.sh $DIR/build/libsodium.sh

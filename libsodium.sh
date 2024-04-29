@@ -1,8 +1,8 @@
 #!/bin/bash
 
 LIBNAME="libsodium.a"
-ARCHS=${ARCHS:-"armv7 armv7s arm64 i386 x86_64"}
-#ARCHS=${ARCHS:-"arm64 i386 x86_64"}
+#ARCHS=${ARCHS:-"armv7 armv7s arm64 i386 x86_64"}
+ARCHS=${ARCHS:-"x86_64"}
 DEVELOPER=$(xcode-select -print-path)
 LIPO=$(xcrun -sdk iphoneos -find lipo)
 #LIPO=lipo
@@ -25,7 +25,7 @@ SIM_SDK=$(xcodebuild -showsdks \
     )
 
 IOS_VERSION_MIN=8.0
-OTHER_CFLAGS="-Os -Qunused-arguments"
+OTHER_CFLAGS="-Os -Qunused-arguments -fembed-bitcode"
 
 # Cleanup
 if [ -d $BUILDDIR ]
